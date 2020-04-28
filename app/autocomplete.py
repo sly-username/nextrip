@@ -116,3 +116,7 @@ class AutoCompleter(object):
 
 ## end the Selenium browser session
 driver.quit()
+
+
+if __name__ == "__main__":
+    print(AutoCompleter(routes).guess_choices(tokens))

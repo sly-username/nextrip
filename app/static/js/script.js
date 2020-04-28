@@ -1,9 +1,13 @@
-
 const input = document.querySelector('input');
-const log = document.getElementById('values');
 
 input.addEventListener('input', updateValue);
 
+
 function updateValue(e) {
-  log.textContent = e.srcElement.value;
+  return fetch('/autocomplete.py', {
+      method: 'POST', 
+      body: JSON.stringify(data)
+    }).then(res => {
+      console.log("Request complete! response:", res);
+    });
   }
