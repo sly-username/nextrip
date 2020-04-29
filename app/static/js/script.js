@@ -1,13 +1,25 @@
-const input = document.querySelector('input');
+function update(name) {
+    form = document.getElementById('nameid')
+    form.caller.value = name;
+    form.submit();
+}
 
-input.addEventListener('input', updateValue);
+function chociesGenerate() {
+   var date = new Date(), dateArray = new Array(), i;
+   curYear = date.getFullYear();
+    for(i = 0; i<5; i++) {
+        dateArray[i] = curYear+i;
+    }
+    return dateArray;
+}
 
-
-function updateValue(e) {
-  return fetch('/autocomplete.py', {
-      method: 'POST', 
-      body: JSON.stringify(data)
-    }).then(res => {
-      console.log("Request complete! response:", res);
-    });
-  }
+function addOption(divname) {
+    var newDiv=document.createElement('div');
+    var html = '<select>', choices = choicesGenerate(), i;
+    for(i = 0; i < choices.length; i++) {
+        html += "<option value='"+choices[i]+"</option>";
+    }
+    html += '</select>';
+    newDiv.innerHTML= html;
+    document.getElementById(divname).appendChild(newDiv);
+}

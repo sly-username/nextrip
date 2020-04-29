@@ -6,28 +6,37 @@
         <meta charset="utf-8">
         <title>Bus Real Time Arrivals</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='css/template.css') }}">
-        <script type=text/javascript src="{{ url_for('static', filename='js/script.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>
     </head>
   
     <body>
     
         <div class="container">
             <h1>bus schedule</h1>
-            <form role="form" method='POST' action='/'>
-            
-                <div class="form-group">
-                    <input type="text" name="route" class="form-control" id="route-box"
-                     placeholder="Enter Route No" style="max-width: 300px;" autofocus required>
+            <form role="form" method="POST" action="/" id="nameid">
+                <div id="input-fields">
+                    <input type="hidden" name="" value="">
+                    <input type="text" name="route" oninput="update(this.name)">
+                     <select>
+                        {% for each in choices %}
+                          <option value="{{each}}">{{each}}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="text" name="direction" onchange="update(this.name)">
                      
-                    <input type="text" name="direction" class="form-control" id="direction-box"
-                     placeholder="Enter Direction" style="max-width: 300px;" autofocus required>
-                     
-                    <input type="text" name="stop" class="form-control" id="stop-box"
-                     placeholder="Enter Bus Stop" style="max-width: 300px;" autofocus required>
+                    <input type="text" name="stop" vonchange="update(this.name)">
                 </div>
-                
-                <button type="submit" class="btn btn-default">Submit</button>
             </form>
+            
+            <div id="predictions">
+                <ul>
+                Predictions
+                {% for p in predictions %}
+                    <li>{{ p.text }} minutes</li>
+                {% endfor %}
+                </ul>
+            </div>    
+            
             <br>
             {% for error in errors %}
                 <h4>{{ error }}</h4>

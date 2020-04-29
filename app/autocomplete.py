@@ -1,46 +1,9 @@
-# -*- coding: utf-8 -*-
-from selenium import webdriver
-from selenium.webdriver.support.ui import Select
 from collections import defaultdict
-
-#import time
-#start_time = time.time()
-
-## launch url
-url = 'https://www.metro.net/riding/nextrip/bus-arrivals/'
-
-## create a new Firefox session
-driver = webdriver.Firefox()
-#driver.implicitly_wait(30)
-driver.get(url)
-driver.switch_to.frame(0)
-
-## select bus stop information
-route = Select(driver.find_element_by_name('routeSelector'))
-direction = Select(driver.find_element_by_name('directionSelector'))
-stop = Select(driver.find_element_by_name('stopSelector'))
-
-routes = []
-for option in route.options:
-    routes.append(option.text.strip())
-
-directions = []
-for option in direction.options:
-    directions.append(option.text.strip())
-    
-stops = []
-for option in stops.options:
-    stops.append(option.text.strip())
-    
-    
-#directions = [x for x in direction.find_elements_by_tag_name('select')]
-
-
-
 
 class AutoCompleter(object):
     
-    def __init__(self, choices_list):
+    def __init__(self, choices_list, tokens):
+        self.tokens = tokens
         self.choices_list = choices_list
         self.token_to_choice_name, self.n_gram_to_tokens = self._create_tokens_database()
 
@@ -98,25 +61,14 @@ class AutoCompleter(object):
         min_possibles = possibles_within_thresh if len(possibles_within_thresh) > min_results else max_possibles[:min_results]
         return [tuple_obj[0] for tuple_obj in min_possibles]
 
-    def guess_choices(self, tokens):
-        real_tokens = self._get_real_tokens_from_possible_n_grams(tokens)
+    def guess_choices(self):
+        real_tokens = self._get_real_tokens_from_possible_n_grams(self.tokens)
         choices_scores = self._get_scored_choices_uncollapsed(real_tokens)
-        collapsed_choice_to_score = self._combined_choice_scores(choices_scores, len(tokens))
+        collapsed_choice_to_score = self._combined_choice_scores(choices_scores, len(self.tokens))
         choices_scores = collapsed_choice_to_score.items()
         choices_scores = sorted(choices_scores, reverse=True)
         return self._filtered_results(choices_scores)
 
 
-#results = AutoCompleter(routes).guess_choices(['704'])
+#results = AutoCompleter(routes, ['704']).guess_choices()
 #print(results)
-
-
-#start_time = time.time()
-#print("--- %s seconds ---" % (time.time() - start_time)) 
-
-## end the Selenium browser session
-driver.quit()
-
-
-if __name__ == "__main__":
-    print(AutoCompleter(routes).guess_choices(tokens))
