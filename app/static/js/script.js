@@ -4,22 +4,30 @@ function update(name) {
     form.submit();
 }
 
-function chociesGenerate() {
-   var date = new Date(), dateArray = new Array(), i;
-   curYear = date.getFullYear();
-    for(i = 0; i<5; i++) {
-        dateArray[i] = curYear+i;
-    }
-    return dateArray;
-}
 
-function addOption(divname) {
-    var newDiv=document.createElement('div');
-    var html = '<select>', choices = choicesGenerate(), i;
-    for(i = 0; i < choices.length; i++) {
-        html += "<option value='"+choices[i]+"</option>";
-    }
-    html += '</select>';
-    newDiv.innerHTML= html;
-    document.getElementById(divname).appendChild(newDiv);
+
+function populateDropdown(){
+
+    $(document).ready(function() {
+        $('#foodkind').change(function() {
+        
+          var foodkind = $('#foodkind').val();
+        
+          // Make Ajax Request and expect JSON-encoded data
+          $.getJSON(
+            '/get_food' + '/' + foodkind,
+            function(data) {
+        
+              // Remove old options
+              $('#food').find('option').remove();                                
+        
+              // Add new items
+              $.each(data, function(key, val) {
+                var option_item = '<option value="' + val + '">' + val + '</option>'
+                $('#food').append(option_item);
+              });
+            }
+          );
+        });
+    });
 }

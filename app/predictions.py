@@ -9,58 +9,51 @@ from selenium.webdriver.common.by import By
 
 class Prediction(object):
     
-    def __init__(self, bus_stop, field_name):
+    def __init__(self, driver):
         self.route_dict = self.get_route_dict()
-        self.bus_stop = bus_stop
-        self.field_name = field_name
+        self.driver = driver
+        self.route_choices = self.route_dict.keys()
+        self.route_list = Select(self.driver.find_element_by_name('routeSelector'))
+        
         
     def get_route_dict(self):
         with open('route_dict.json', 'r') as f:
             route_dict = json.load(f)
         return route_dict
+     
     
-#    def get_bus_stop(self):
-#        url = 'https://www.metro.net/riding/nextrip/bus-arrivals/'
-#        driver = webdriver.Firefox()
-#        driver.get(url)
-#        driver.switch_to.frame(0)
-#        route_list = Select(driver.find_element_by_name('routeSelector'))
-#        bus_stop = route_list.first_selected_option.get_attribute('value')
-#        driver.quit()
-#        
-#        return bus_stop
-    
-    def get_choices_list(self):
-#        bus_stop = self.get_bus_stop()
+#    def get_choices_list(self):
+#        content = self.driver.find_element(By.XPATH, '//div[@class="iframe-nextrip"]/iframe')
+#        self.driver.switch_to.frame(content)
+#        bus_num = self.route_list.first_selected_option.get_attribute('value')
         
-        if self.field_name == 'route':
-            return self.route_dict.keys()
-        elif self.field_name == 'direction':
-            return self.route_dict[self.bus_stop]['direction']
-        elif self.field_name == 'stop':
-            return self.route_dict[self.bus_stop]['stop']
+#        return self.route_dict.keys(), self.route_dict[bus_num]['direction'], self.route_dict[bus_num]['stop']
+
+    
+    def grouped(self, iterable, n):
+        return zip(*[iter(iterable)]*n)
+    
     
     def get_predictions(self):
-        url = 'https://www.metro.net/riding/nextrip/bus-arrivals/'
-        driver = webdriver.Firefox()
-        driver.get(url)
-        driver.switch_to.frame(0)
+        direction = self.driver.find_elements(
+                By.XPATH, '//select[@name="directionSelector"]/option')
+        self.driver.switch_to.frame('predictionFrame')
+        predictions = self.driver.find_elements(
+                By.XPATH, '//tr[@class="predictionBox"]/td/table/tbody/tr')
         
-        driver.switch_to.frame('predictionFrame')
-        
-        results = driver.find_elements(By.XPATH, '//*[contains(@class, "Prediction")]')
-        
-        ## end the Selenium browser session
-        
-        return results
+        if len(direction) > 1:
+            results = []
+            for x, y in self.grouped(predictions, 2):
+                results.append((x.text.strip(), y.text.strip()))
+            return results
+         
+#            results = self.driver.find_elements(By.XPATH, '//*[contains(@class, "Prediction")]')
+        return predictions
 
-        driver.quit()
+    def quit_session(self):
+        ## end the Selenium browser session
+        self.driver.quit()
 
     
 #start_time = time.time()
 #print("--- %s seconds ---" % (time.time() - start_time)) 
-
-
-
-if __name__ == "__main__":
-    app.run(debug=True)

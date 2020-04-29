@@ -1,38 +1,54 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-    
 
     <head>
         <meta charset="utf-8">
-        <title>Bus Real Time Arrivals</title>
+        <title>Bus Arrivals</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='css/template.css') }}">
-        <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>
+        
+        <script 
+            type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"
+            src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous">
+        </script>
     </head>
   
     <body>
-    
         <div class="container">
             <h1>bus schedule</h1>
-            <form role="form" method="POST" action="/" id="nameid">
-                <div id="input-fields">
-                    <input type="hidden" name="" value="">
-                    <input type="text" name="route" oninput="update(this.name)">
-                     <select>
-                        {% for each in choices %}
-                          <option value="{{each}}">{{each}}</option>
-                        {% endfor %}
-                    </select>
-                    <input type="text" name="direction" onchange="update(this.name)">
-                     
-                    <input type="text" name="stop" vonchange="update(this.name)">
-                </div>
+            
+            {% for route in routes %}
+              <p>{{route.name}}</p>
+              <form method="POST" action="./autocomplete">
+                <input type="text" value="{{route.name}}" name="route">
+                <select method="GET" action="/">
+                    {% for c in choices %}
+                      <option value="{{c}}">{{c}}</option>
+                    {% endfor %}
+                </select>
+              </form>
+            {% endfor %}
+            
+            <form>      
+                 <select method="GET" action="/">
+                    {% for d in direction_choices %}
+                      <option value="{{d}}">{{d}}</option>
+                    {% endfor %}
+                </select>        
+                
+                 <select method="GET" action="/">
+                    {% for s in stop_choices %}
+                      <option value="{{s}}">{{s}}</option>
+                    {% endfor %}
+                </select>
             </form>
             
             <div id="predictions">
                 <ul>
-                Predictions
+                Bus Arrivals
                 {% for p in predictions %}
-                    <li>{{ p.text }} minutes</li>
+                    <li>{{ p }}</li>
                 {% endfor %}
                 </ul>
             </div>    
@@ -42,7 +58,6 @@
                 <h4>{{ error }}</h4>
             {% endfor %}
         </div>
-        
     </body>
   
 </html>

@@ -1,36 +1,56 @@
 # -*- coding: utf-8 -*-
+from selenium import webdriver
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.by import By
 from flask import Flask, render_template, request
 from autocomplete import AutoCompleter   
 from predictions import Prediction
 
+
+
 app = Flask(__name__)
 
-@app.route("/", methods = ['GET', 'POST'])
+url = 'https://www.metro.net/riding/nextrip/bus-arrivals/'
+driver = webdriver.Firefox()
+driver.get(url)
+driver.execute_script("window.stop();")
+
+content = driver.find_element(By.XPATH, '//div[@class="iframe-nextrip"]/iframe')
+driver.switch_to.frame(content)
+
+@app.route('/', methods = ['GET', 'POST'])
 def home():
-    bus_stop = '704 Downtown LA - Santa Monica Via Santa'
-    predictions = Prediction(bus_stop, 'route').get_predictions()
-    return render_template("home.html", predictions=predictions)
+#    url = 'https://www.metro.net/riding/nextrip/bus-arrivals/'
+#    driver = webdriver.Firefox()
+#    driver.get(url)
+#    driver.execute_script("window.stop();")
+#    
+#    content = driver.find_element(By.XPATH, '//div[@class="iframe-nextrip"]/iframe')
+#    driver.switch_to.frame(content)
+    driver.switch_to.default_content()
+    driver.switch_to.frame(content)
+    route_list = Select(driver.find_element_by_name('routeSelector'))
+    route_list.select_by_value('704')
+    predictions = Prediction(driver).get_predictions()
+    return render_template('home.html', predictions=predictions)
 
 
-@app.route('/autocomplete', methods = ['POST'])
-def get_matches():
+@app.route('/autocomplete/<user_input>', methods = ['POST'])
+def list_possible_choices():
     if request.method == 'POST':
-        field_name = request.form('caller')
+        field_name = request.form('caller') 
         user_input = request.form[field_name].value
-        choices_list = Prediction.get_choices_list(field_name)
-        choices = AutoCompleter(choices_list, user_input).guess_choices()
+        route_choices = Prediction.route_choices
+        choices = AutoCompleter(route_choices, user_input).guess_choices()
         return choices
-    return render_template("home.html", choices=choices)
+    return render_template('home.html', choices=choices)
+     
 
 
-@app.route('/predict', methods = ['GET', 'POST'])
-def get_predictions(bus_stop, field_name):
-    predictions = Prediction(bus_stop, field_name).get_predictions()
-    return predictions
-    return render_template("home.html", predictions=predictions)
-
-    
-
+@app.route('/predict', methods = ['GET'])
+def get_predictions():
+    predictions = Prediction(driver).get_predictions()
+    return render_template('home.html', predictions=predictions)
 
 # =============================================================================
 # @app.route('/autocomplete', methods = ['POST'])
